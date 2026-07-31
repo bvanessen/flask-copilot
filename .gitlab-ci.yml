@@ -37,6 +37,20 @@ build:
     - podman logout $NEXUS_REGISTRY
     - podman logout $CI_REGISTRY
 
+deploy-dev:
+  stage: deploy
+  tags:
+    - shell
+    - oslic
+  script:
+    - echo "Deploying FLASK-Copilot Development App in K8s server"
+    - /usr/global/openshift/bin/oc login --server=$K8S_SERVER_API --token=$FLASK_DEPLOYER_TOKEN
+    # Restart Dev Deployment
+    - /usr/global/openshift/bin/oc rollout restart deployment $DEPLOYMENT_NAME
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+
 deploy:
   stage: deploy
   tags:
@@ -45,10 +59,9 @@ deploy:
   script:
     - echo "Deploying FLASK-Copilot App in K8s server"
     - /usr/global/openshift/bin/oc login --server=$K8S_SERVER_API --token=$FLASK_DEPLOYER_TOKEN
-    # Restart Dev Deployment
-    - /usr/global/openshift/bin/oc rollout restart deployment $DEPLOYMENT_NAME
     # Restart Prod Deployment
     - /usr/global/openshift/bin/oc rollout restart deployment $DEPLOYMENT_NAME_PROD
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
+    - if: $CI_COMMIT_TAG # Runs only when a Git tag is created
