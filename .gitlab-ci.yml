@@ -48,7 +48,7 @@ deploy-dev:
     # Restart Dev Deployment
     - /usr/global/openshift/bin/oc rollout restart deployment $DEPLOYMENT_NAME
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
       when: on_success
 
 deploy:
